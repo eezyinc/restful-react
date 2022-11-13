@@ -4,6 +4,7 @@ import nock from "nock";
 import React from "react";
 import { RestfulProvider, useMutate, UseMutateProps } from ".";
 import { Omit } from "./useGet";
+import { WrapperProps } from "./util/test_util";
 
 describe("useMutate", () => {
   // Mute console.error -> https://github.com/kentcdodds/react-testing-library/issues/281
@@ -22,7 +23,7 @@ describe("useMutate", () => {
         .delete("/plop")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("DELETE", ""), { wrapper });
@@ -38,7 +39,7 @@ describe("useMutate", () => {
       nock("https://my-awesome-api.fake")
         .delete("/plop")
         .reply(200, { oops: true });
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
 
@@ -57,7 +58,7 @@ describe("useMutate", () => {
         .delete("/plop")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("DELETE", ""), { wrapper });
@@ -75,7 +76,7 @@ describe("useMutate", () => {
         .delete("/plop")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://not-here.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("DELETE", "", { base: "https://my-awesome-api.fake" }), {
@@ -95,7 +96,7 @@ describe("useMutate", () => {
         .delete("/plop")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://not-here.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("DELETE", "user", { base: "https://my-awesome-api.fake" }), {
@@ -115,7 +116,7 @@ describe("useMutate", () => {
         .delete("/", { foo: "bar" })
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("DELETE", ""), { wrapper });
@@ -133,7 +134,7 @@ describe("useMutate", () => {
         .delete("/", {})
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("DELETE", ""), { wrapper });
@@ -151,7 +152,7 @@ describe("useMutate", () => {
         .delete("/")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("DELETE", ""), {
@@ -171,7 +172,7 @@ describe("useMutate", () => {
         .delete("/")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate<any, any, { [key: string]: any }, void, void>("DELETE", ""), {
@@ -194,7 +195,7 @@ describe("useMutate", () => {
         })
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("DELETE", "", { queryParams: { myParam: true } }), {
@@ -219,7 +220,7 @@ describe("useMutate", () => {
         })
         .reply(200, { vegan: false });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider queryParams={{ cheese: "yummy" }} base="https://my-awesome-api.fake">
           {children}
         </RestfulProvider>
@@ -244,7 +245,7 @@ describe("useMutate", () => {
         })
         .reply(200, { vegan: true });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider queryParams={{ cheese: "yummy" }} base="https://my-awesome-api.fake">
           {children}
         </RestfulProvider>
@@ -270,7 +271,7 @@ describe("useMutate", () => {
         })
         .reply(200, { vegan: "confused" });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider queryParams={{ meat: "omg amazing" }} base="https://my-awesome-api.fake">
           {children}
         </RestfulProvider>
@@ -296,7 +297,7 @@ describe("useMutate", () => {
         })
         .reply(200, { vegan: "confused" });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider queryParams={{ meat: "omg amazing" }} base="https://my-awesome-api.fake">
           {children}
         </RestfulProvider>
@@ -321,7 +322,7 @@ describe("useMutate", () => {
         })
         .reply(200, () => ({ vegan: true }));
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(
@@ -351,7 +352,7 @@ describe("useMutate", () => {
         })
         .reply(200, () => ({ vegan: true }));
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider queryParamStringifyOptions={{ arrayFormat: "brackets" }} base="https://my-awesome-api.fake">
           {children}
         </RestfulProvider>
@@ -382,7 +383,7 @@ describe("useMutate", () => {
         })
         .reply(200, () => ({ vegan: true }));
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider queryParamStringifyOptions={{ arrayFormat: "brackets" }} base="https://my-awesome-api.fake">
           {children}
         </RestfulProvider>
@@ -411,7 +412,7 @@ describe("useMutate", () => {
         .delete("/?anArray[]=nice;foo=bar")
         .reply(200, () => ({ vegan: true }));
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider queryParamStringifyOptions={{ arrayFormat: "brackets" }} base="https://my-awesome-api.fake">
           {children}
         </RestfulProvider>
@@ -443,7 +444,7 @@ describe("useMutate", () => {
         .reply(200, { id: 1 })
         .persist();
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const getPath = ({ id }: { id: string }) => `plop/${id}`;
@@ -472,7 +473,7 @@ describe("useMutate", () => {
         .reply(200, { id: 1 })
         .persist();
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const getPath = ({ id }: { id: string }) => `plop/${id}`;
@@ -501,7 +502,7 @@ describe("useMutate", () => {
         .post("/plop/one")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(
@@ -527,7 +528,7 @@ describe("useMutate", () => {
         .post("/plop/one")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(
@@ -555,7 +556,7 @@ describe("useMutate", () => {
         .post("/plop")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate<{ id: number }, unknown, {}, {}>("POST", "plop"), {
@@ -574,7 +575,7 @@ describe("useMutate", () => {
         .post("/")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate<{ id: number }, unknown, {}, {}>("POST", ""), { wrapper });
@@ -592,7 +593,7 @@ describe("useMutate", () => {
         .post("/", { foo: "bar" })
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("POST", ""), { wrapper });
@@ -610,7 +611,7 @@ describe("useMutate", () => {
         .post("/")
         .reply(500, { error: "I can't, I'm just a chicken!" });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("POST", ""), { wrapper });
@@ -639,7 +640,7 @@ describe("useMutate", () => {
         .post("/")
         .reply(200, { ok: true });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const onMutate = jest.fn();
@@ -655,7 +656,7 @@ describe("useMutate", () => {
           "content-type": "application/json",
         });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useMutate("POST", ""), { wrapper });
@@ -687,7 +688,7 @@ describe("useMutate", () => {
         .reply(500, { error: "I can't, I'm just a chicken!" });
 
       const onError = jest.fn();
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake" onError={onError}>
           {children}
         </RestfulProvider>
@@ -716,7 +717,7 @@ describe("useMutate", () => {
         .reply(200, { message: "You shall pass :)" });
 
       const onError = jest.fn();
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake" onError={onError}>
           {children}
         </RestfulProvider>
@@ -749,7 +750,7 @@ describe("useMutate", () => {
         .reply(500, { error: "I can't, I'm just a chicken!" });
 
       const onError = jest.fn();
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake" onError={onError}>
           {children}
         </RestfulProvider>
@@ -766,7 +767,7 @@ describe("useMutate", () => {
         .post("/")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(
@@ -790,7 +791,7 @@ describe("useMutate", () => {
         .post("/")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(
@@ -806,7 +807,8 @@ describe("useMutate", () => {
       try {
         await result.current.mutate({});
         expect("this statement").toBe("not executed");
-      } catch (e) {
+        // eslint-disable-next-line prettier/prettier
+      } catch (e: any) {
         expect(result.current).toMatchObject({
           error: {
             data: "I don't like your data!",
@@ -814,7 +816,9 @@ describe("useMutate", () => {
           },
           loading: false,
         });
-        expect(e.message).toEqual("I don't like your data!");
+        if (e && "message" in e) {
+          expect(e.message).toEqual("I don't like your data!");
+        }
       }
     });
 
@@ -824,7 +828,7 @@ describe("useMutate", () => {
         .reply(200, { hello: "world" });
 
       const onRequest = jest.fn();
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake" onRequest={onRequest}>
           {children}
         </RestfulProvider>
@@ -843,7 +847,7 @@ describe("useMutate", () => {
       const onResponse = jest.fn(async (res: Response) => {
         body = await res.json();
       });
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake" onResponse={onResponse}>
           {children}
         </RestfulProvider>
@@ -861,7 +865,7 @@ describe("useMutate", () => {
 
       const resolve = jest.fn(val => val);
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake" resolve={resolve}>
           {children}
         </RestfulProvider>
@@ -903,7 +907,7 @@ describe("useMutate", () => {
           props,
         );
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useDeleteMyCustomEndpoint({ queryParams: { force: true } }), { wrapper });
@@ -950,7 +954,7 @@ describe("useMutate", () => {
           props,
         );
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(() => useDeleteMyCustomEndpoint({ queryParams: { force: true } }), { wrapper });

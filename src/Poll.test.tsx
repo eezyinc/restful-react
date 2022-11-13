@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/extend-expect";
-import { cleanup, render, wait } from "@testing-library/react";
+import { act, cleanup, render, waitFor } from '@testing-library/react';
 import "isomorphic-fetch";
 import nock from "nock";
 import React from "react";
@@ -39,7 +39,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should compose the url with the base", async () => {
@@ -68,7 +68,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should set loading to `true` on mount", async () => {
@@ -97,7 +97,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[0][1].loading).toEqual(true);
     });
 
@@ -127,7 +127,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
     });
 
@@ -159,7 +159,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual({ data: "hello" });
     });
 
@@ -191,7 +191,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3), { timeout: 2000 });
       expect(children.mock.calls[2][0]).toEqual({ data: "hello you" });
     });
 
@@ -241,8 +241,8 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
-      await wait(() =>
+      await waitFor(() => expect(children.mock.calls.length).toBe(3), { timeout: 3000 });
+      await waitFor(() =>
         expect(children.mock.calls[children.mock.calls.length - 1][0]).toEqual(lastResponseWithoutIndex),
       );
     });
@@ -280,7 +280,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
     it("should inherit query parameters from provider if none specified", async () => {
       nock("https://my-awesome-api.fake", {
@@ -314,7 +314,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
     it("should override query parameters from provider if own specified", async () => {
       nock("https://my-awesome-api.fake", {
@@ -350,7 +350,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
     it("should merge query parameters from provider when both specified", async () => {
       nock("https://my-awesome-api.fake", {
@@ -387,7 +387,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should call the provider onRequest", async () => {
@@ -408,7 +408,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length > 0).toBe(true));
+      await waitFor(() => expect(children.mock.calls.length > 0).toBe(true));
       expect(onRequest).toBeCalledWith(request);
     });
 
@@ -432,7 +432,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(onResponse).toBeCalled();
       expect(body).toMatchObject({ hello: "world" });
     });
@@ -453,7 +453,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual(null);
       expect(children.mock.calls[1][1].error).toEqual({
         data: { message: "You shall not pass!" },
@@ -478,13 +478,13 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual(null);
       expect(children.mock.calls[1][1].error).toEqual({
         data:
-          "invalid json response body at https://my-awesome-api.fake reason: Unexpected token < in JSON at position 0",
+          "Failed to fetch: invalid json response body at https://my-awesome-api.fake reason: Unexpected token < in JSON at position 0",
         message:
-          "Failed to poll: 200 OK - invalid json response body at https://my-awesome-api.fake reason: Unexpected token < in JSON at position 0",
+          "Failed to poll: 200 OK - Failed to fetch: invalid json response body at https://my-awesome-api.fake reason: Unexpected token < in JSON at position 0",
         status: 200,
       });
     });
@@ -515,7 +515,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3), { timeout: 2000 });
 
       // first res (error)
       expect(children.mock.calls[1][0]).toEqual(null);
@@ -546,7 +546,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(onError).toBeCalledWith(
         {
           data: { message: "You shall not pass!" },
@@ -576,7 +576,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(onError.mock.calls.length).toEqual(0);
     });
   });
@@ -596,7 +596,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual({ hello: "world", foo: "bar" });
     });
 
@@ -616,11 +616,13 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual({ hello: "world", foo: "bar" });
     });
 
     it("should be able to consolidate data", async () => {
+      jest.useFakeTimers();
+      const timerVal = 1000;
       nock("https://my-awesome-api.fake", {
         reqheaders: {
           prefer: "wait=0s;",
@@ -645,17 +647,23 @@ describe("Poll", () => {
           <Poll
             path=""
             wait={0}
-            resolve={(data, prevData) => ({
-              data: (prevData || { data: "" }).data + data.data,
-            })}
+            resolve={(data, prevData) => {
+              return { data: (prevData || { data: "" }).data + data.data };
+            }}
           >
             {children}
           </Poll>
         </RestfulProvider>,
       );
+      await act((): void => {
+        jest.advanceTimersByTime(timerVal);
+      });
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3), { timeout: 2000 });
       expect(children.mock.calls[2][0]).toEqual({ data: "hello you" });
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
     });
 
     it("should update data when resolver changes", async () => {
@@ -685,7 +693,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
       expect(children.mock.calls[2][0]).toEqual({ hello: "world", foo: "bar" });
     });
   });
@@ -703,7 +711,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toBe(false);
       expect(children.mock.calls[0][0]).toBe(null);
     });
@@ -726,7 +734,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
@@ -747,7 +755,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
@@ -766,7 +774,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
@@ -785,7 +793,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
@@ -808,7 +816,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
@@ -829,12 +837,15 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
 
     it("should add a promised custom header with the requestOptions method", async () => {
+      jest.useFakeTimers();
+      const timerVal = 1000;
+
       nock("https://my-awesome-api.fake", { reqheaders: { foo: "bar" } })
         .get("/")
         .reply(200, { id: 1 });
@@ -846,16 +857,22 @@ describe("Poll", () => {
         <RestfulProvider base="https://my-awesome-api.fake">
           <Poll
             path=""
-            requestOptions={() => new Promise(res => setTimeout(() => res({ headers: { foo: "bar" } }), 1000))}
+            requestOptions={() => new Promise(res => setTimeout(() => res({ headers: { foo: "bar" } }), timerVal))}
           >
             {children}
           </Poll>
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await act((): void => {
+        jest.advanceTimersByTime(timerVal);
+      });
+
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
     });
 
     it("should merge headers with providers", async () => {
@@ -874,7 +891,7 @@ describe("Poll", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });

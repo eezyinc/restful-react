@@ -35,7 +35,7 @@ function useDeepCompareMemoize(value: Readonly<any>) {
  * @see https://gist.github.com/kentcdodds/fb8540a05c43faf636dd68647747b074#gistcomment-2830503
  */
 export function useDeepCompareEffect<T>(effect: React.EffectCallback, deps: T) {
-  useEffect(effect, useDeepCompareMemoize(deps));
+  useEffect(effect, useDeepCompareMemoize(deps as Readonly<any>));
 }
 
 export function useDeepCompareCallback<T extends (...args: any[]) => any>(callback: T, deps: readonly any[]) {

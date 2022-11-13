@@ -9,6 +9,7 @@ import { processResponse } from "./util/processResponse";
 import { resolveData } from "./util/resolveData";
 import { constructUrl } from "./util/constructUrl";
 import { IStringifyOptions } from "qs";
+import { parseError } from "./util/parseError";
 
 /**
  * A function that resolves returned data from
@@ -311,10 +312,7 @@ class ContextlessGet<TData, TError, TQueryParams, TPathParams = unknown> extends
       this.setState({
         loading: false,
         data: null,
-        error: {
-          message: `Failed to fetch: ${e.message}`,
-          data: e,
-        },
+        error: parseError(e),
       });
     }
   };

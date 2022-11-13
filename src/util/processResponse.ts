@@ -1,3 +1,5 @@
+import { parseErrorMessage } from "./parseError";
+
 export const processResponse = async (response: Response) => {
   if (response.status === 204) {
     return { data: undefined, responseError: false };
@@ -10,7 +12,7 @@ export const processResponse = async (response: Response) => {
       };
     } catch (e) {
       return {
-        data: e.message,
+        data: parseErrorMessage(e),
         responseError: true,
       };
     }
@@ -25,7 +27,7 @@ export const processResponse = async (response: Response) => {
       };
     } catch (e) {
       return {
-        data: e.message,
+        data: parseErrorMessage(e),
         responseError: true,
       };
     }

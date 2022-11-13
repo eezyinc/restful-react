@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/extend-expect";
-import { cleanup, fireEvent, render, wait, waitForElement } from "@testing-library/react";
+import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import "isomorphic-fetch";
 import times from "lodash/times";
 import nock from "nock";
@@ -8,6 +8,7 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { RestfulProvider, useGet } from "./index";
 import { Omit, UseGetProps } from "./useGet";
+import { WrapperProps } from "./util/test_util";
 
 describe("useGet hook", () => {
   // Mute console.error -> https://github.com/kentcdodds/react-testing-library/issues/281
@@ -34,13 +35,13 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      expect(getByTestId("loading")).toHaveTextContent("Loading…");
+      expect(await findByTestId("loading")).toHaveTextContent("Loading…");
     });
 
     it("should have data from the request after loading", async () => {
@@ -54,15 +55,15 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("data"));
+      const data = await findByTestId("data");
 
-      expect(getByTestId("data")).toHaveTextContent("my god 😍");
+      expect(data).toHaveTextContent("my god 😍");
     });
 
     it("should have data from the request after loading (alternative syntax)", async () => {
@@ -76,15 +77,15 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("data"));
+      const data = await findByTestId("data");
 
-      expect(getByTestId("data")).toHaveTextContent("my god 😍");
+      expect(data).toHaveTextContent("my god 😍");
     });
 
     it("shouldn't resolve after component unmount", async () => {
@@ -112,7 +113,7 @@ describe("useGet hook", () => {
 
       unmount();
       requestResolves!();
-      await wait(() => expect(resolve).not.toHaveBeenCalled());
+      await waitFor(() => expect(resolve).not.toHaveBeenCalled());
     });
 
     it("should call provider onRequest", async () => {
@@ -153,13 +154,13 @@ describe("useGet hook", () => {
         body = await response.json();
       });
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake" onResponse={onResponse}>
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("data"));
+      await findByTestId("data");
 
       expect(onResponse).toBeCalled();
       expect(body).toMatchObject({ oh: "my god 😍" });
@@ -178,13 +179,13 @@ describe("useGet hook", () => {
 
       const resolve = jest.fn(val => val);
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake" resolve={resolve}>
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("data"));
+      await findByTestId("data");
 
       expect(resolve).toBeCalled();
     });
@@ -209,15 +210,16 @@ describe("useGet hook", () => {
         );
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("response"));
-      expect(getByTestId("response")).not.toBeEmpty();
-      expect(getByTestId("custom-header")).toHaveTextContent("custom value");
+      const response = await findByTestId("response");
+      const header = await findByTestId("custom-header");
+      expect(response).not.toBeEmptyDOMElement();
+      expect(header).toHaveTextContent("custom value");
     });
   });
 
@@ -247,15 +249,15 @@ describe("useGet hook", () => {
           return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
         };
 
-        const { getByTestId } = render(
+        const { findByTestId } = render(
           <RestfulProvider base={base}>
             <MyAwesomeComponent />
           </RestfulProvider>,
         );
 
-        await waitForElement(() => getByTestId("data"));
+        const data = await findByTestId("data");
 
-        expect(getByTestId("data")).toHaveTextContent("my god 😍");
+        expect(data).toHaveTextContent("my god 😍");
       });
     }));
 
@@ -274,15 +276,15 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("error"));
+      const err = await findByTestId("error");
 
-      expect(getByTestId("error")).toHaveTextContent("Failed to fetch: 401 Unauthorized");
+      expect(err).toHaveTextContent("Failed to fetch: 401 Unauthorized");
     });
 
     it("should handle network error", async () => {
@@ -299,15 +301,15 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("error"));
+      const err = await findByTestId("error");
 
-      expect(getByTestId("error")).toHaveTextContent(
+      expect(err).toHaveTextContent(
         "Failed to fetch: request to https://my-awesome-api.fake/ failed, reason: You shall not pass!",
       );
     });
@@ -328,16 +330,16 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("error"));
+      const err = await findByTestId("error");
 
-      expect(getByTestId("error")).toHaveTextContent(
-        "Failed to fetch: 200 OK - invalid json response body at https://my-awesome-api.fake/ reason: Unexpected token < in JSON at position 0",
+      expect(err).toHaveTextContent(
+        "Failed to fetch: 200 OK - Failed to fetch: invalid json response body at https://my-awesome-api.fake/ reason: Unexpected token < in JSON at position 0",
       );
     });
 
@@ -357,13 +359,13 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake" onError={onError}>
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("error"));
+      await findByTestId("error");
       expect(onError).toBeCalledWith(
         {
           data: { message: "You shall not pass!" },
@@ -403,13 +405,13 @@ describe("useGet hook", () => {
         );
       };
 
-      const { getByTestId } = render(<App />);
+      const { findByTestId } = render(<App />);
 
-      await waitForElement(() => getByTestId("retry"));
-      fireEvent.click(getByTestId("retry"));
+      const button = await findByTestId("retry");
+      fireEvent.click(button);
 
-      await waitForElement(() => getByTestId("data"));
-      expect(getByTestId("data")).toHaveTextContent("You shall pass :)");
+      const data = await findByTestId("data");
+      expect(data).toHaveTextContent("You shall pass :)");
     });
 
     it("should clear up the old error on refetching", async () => {
@@ -437,13 +439,13 @@ describe("useGet hook", () => {
         );
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent path="" />
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
 
       expect(children.mock.calls[0][0].loading).toEqual(true);
       expect(children.mock.calls[0][0].error).toEqual(null);
@@ -451,9 +453,10 @@ describe("useGet hook", () => {
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].error).toMatchObject({ status: 404 });
 
-      fireEvent.click(getByTestId("set-page-button"));
+      const button = await findByTestId("set-page-button");
+      fireEvent.click(button);
 
-      await wait(() => expect(children).toBeCalledTimes(5));
+      await waitFor(() => expect(children).toBeCalledTimes(5));
 
       expect(children.mock.calls[1][0].error).not.toEqual(null);
       expect(children.mock.calls[4][0].loading).toEqual(false);
@@ -486,17 +489,17 @@ describe("useGet hook", () => {
         );
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent path="" />
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
+      const button = await findByTestId("set-page-button");
+      fireEvent.click(button);
 
-      fireEvent.click(getByTestId("set-page-button"));
-
-      await wait(() => expect(children).toBeCalledTimes(5));
+      await waitFor(() => expect(children).toBeCalledTimes(5));
       expect(children.mock.calls[1][0].error).toEqual(null);
       expect(children.mock.calls[4][0].loading).toEqual(false);
       expect(children.mock.calls[4][0].data).toEqual(null);
@@ -522,13 +525,13 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.message}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake" onError={onError}>
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("error"));
+      await findByTestId("error");
 
       expect(onError).not.toBeCalled();
     });
@@ -546,15 +549,15 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("data"));
+      const data = await findByTestId("data");
 
-      expect(getByTestId("data")).toHaveTextContent("my god 😍🎉");
+      expect(data).toHaveTextContent("my god 😍🎉");
     });
 
     it("should pass an error when the resolver throws a runtime error", async () => {
@@ -576,15 +579,15 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("error"));
+      const error = await findByTestId("error");
 
-      expect(getByTestId("error")).toHaveTextContent("Failed to fetch: oh no!");
+      expect(error).toHaveTextContent("Failed to fetch: oh no!");
     });
   });
 
@@ -605,7 +608,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(1));
+      await waitFor(() => expect(children).toBeCalledTimes(1));
       expect(children).toHaveBeenCalledWith({ data: null, error: null, loading: false });
     });
   });
@@ -622,14 +625,14 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https:/not-here.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("data"));
-      expect(getByTestId("data")).toHaveTextContent("my god 😍");
+      const data = await findByTestId("data");
+      expect(data).toHaveTextContent("my god 😍");
     });
 
     it("should override the base url and compose with the path", async () => {
@@ -643,14 +646,14 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https:/not-here.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("data"));
-      expect(getByTestId("data")).toHaveTextContent("my god 😍");
+      const data = await findByTestId("data");
+      expect(data).toHaveTextContent("my god 😍");
     });
   });
 
@@ -666,15 +669,15 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("data"));
+      const data = await findByTestId("data");
 
-      expect(getByTestId("data")).toHaveTextContent("my god 😍");
+      expect(data).toHaveTextContent("my god 😍");
     });
 
     it("should merge headers with providers", async () => {
@@ -690,7 +693,7 @@ describe("useGet hook", () => {
         return loading ? <div data-testid="loading">Loading…</div> : <div data-testid="data">{data?.oh}</div>;
       };
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider
           base="https://my-awesome-api.fake"
           requestOptions={(url, method) => {
@@ -701,9 +704,9 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("data"));
+      const data = await findByTestId("data");
 
-      expect(getByTestId("data")).toHaveTextContent("my god 😍");
+      expect(data).toHaveTextContent("my god 😍");
     });
   });
 
@@ -730,7 +733,7 @@ describe("useGet hook", () => {
       expect(children.mock.calls[0][0].loading).toEqual(true);
       expect(children.mock.calls[0][0].data).toEqual(null);
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ id: 1 });
 
@@ -739,7 +742,7 @@ describe("useGet hook", () => {
         .get("/")
         .reply(200, { id: 2 });
       expect(await children.mock.calls[1][0].refetch()).toEqual({ id: 2 });
-      await wait(() => expect(children).toHaveBeenCalledTimes(4));
+      await waitFor(() => expect(children).toHaveBeenCalledTimes(4));
 
       // transition state
       expect(children.mock.calls[2][0].loading).toEqual(true);
@@ -772,7 +775,7 @@ describe("useGet hook", () => {
           <MyAwesomeComponent />
         </RestfulProvider>,
       );
-      await wait(() => expect(children).toBeCalledTimes(3));
+      await waitFor(() => expect(children).toBeCalledTimes(3));
 
       // Initial render before useEffect is called
       expect(children.mock.calls[0][0].loading).toEqual(false);
@@ -814,7 +817,7 @@ describe("useGet hook", () => {
       expect(children.mock.calls[0][0].loading).toEqual(true);
       expect(children.mock.calls[0][0].data).toEqual(null);
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ id: 1 });
 
@@ -823,7 +826,7 @@ describe("useGet hook", () => {
         .get("/plop")
         .reply(200, { id: 2 });
       expect(await children.mock.calls[1][0].refetch({ path: "/plop" })).toEqual({ id: 2 });
-      await wait(() => expect(children).toHaveBeenCalledTimes(4));
+      await waitFor(() => expect(children).toHaveBeenCalledTimes(4));
 
       // transition state
       expect(children.mock.calls[2][0].loading).toEqual(true);
@@ -866,7 +869,7 @@ describe("useGet hook", () => {
         ),
       );
 
-      await wait(() => expect(apiCalls).toEqual(1));
+      await waitFor(() => expect(apiCalls).toEqual(1));
     });
 
     it("should call the API only 10 times without debounce", async () => {
@@ -899,7 +902,7 @@ describe("useGet hook", () => {
         ),
       );
 
-      await wait(() => expect(apiCalls).toEqual(10));
+      await waitFor(() => expect(apiCalls).toEqual(10));
     });
     it("should cancel the debounce on unmount", async () => {
       nock("https://my-awesome-api.fake")
@@ -1019,7 +1022,7 @@ describe("useGet hook", () => {
       );
 
       // A mystery... this is called an extra time
-      await wait(() => expect(children).toBeCalledTimes(3 + 1));
+      await waitFor(() => expect(children).toBeCalledTimes(3 + 1));
       expect(children.mock.calls[2 + 1][0].loading).toEqual(false);
       expect(children.mock.calls[2 + 1][0].data).toEqual({ id: 1 });
     });
@@ -1054,9 +1057,9 @@ describe("useGet hook", () => {
       );
 
       // A mystery... this is called an extra time
-      await wait(() => expect(children).toBeCalledTimes(4 + 1));
-      expect(children.mock.calls[3 + 1][0].loading).toEqual(false);
-      expect(children.mock.calls[3 + 1][0].data).toEqual({ id: 1 });
+      await waitFor(() => expect(children).toBeCalledTimes(3 + 1));
+      expect(children.mock.calls[2 + 1][0].loading).toEqual(false);
+      expect(children.mock.calls[2 + 1][0].data).toEqual({ id: 1 });
     });
   });
 
@@ -1214,7 +1217,7 @@ describe("useGet hook", () => {
       );
 
       // A mystery... this is called an extra time
-      await wait(() => expect(children).toBeCalledTimes(3 + 1));
+      await waitFor(() => expect(children).toBeCalledTimes(3 + 1));
       expect(children.mock.calls[2 + 1][0].loading).toEqual(false);
       expect(children.mock.calls[2 + 1][0].data).toEqual({ id: 1 });
     });
@@ -1273,7 +1276,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ id: 42 });
     });
@@ -1299,7 +1302,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ authenticated: true });
     });
@@ -1325,7 +1328,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ authenticated: true });
     });
@@ -1351,7 +1354,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ authenticated: true });
     });
@@ -1384,7 +1387,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ id: 42 });
     });
@@ -1414,7 +1417,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ id: 42 });
     });
@@ -1445,7 +1448,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ id: 42 });
     });
@@ -1473,7 +1476,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ id: 42 });
     });
@@ -1518,7 +1521,7 @@ describe("useGet hook", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children).toBeCalledTimes(2));
+      await waitFor(() => expect(children).toBeCalledTimes(2));
       expect(children.mock.calls[1][0].loading).toEqual(false);
       expect(children.mock.calls[1][0].data).toEqual({ id: 42 });
     });
@@ -1530,7 +1533,7 @@ describe("useGet hook", () => {
         .get("/plop/one")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(
@@ -1545,7 +1548,7 @@ describe("useGet hook", () => {
       );
       expect(await result.current.refetch({ pathParams: { id: "one" } })).toEqual({ id: 1 });
 
-      await wait(() =>
+      await waitFor(() =>
         expect(result.current).toMatchObject({
           error: null,
           loading: false,
@@ -1559,7 +1562,7 @@ describe("useGet hook", () => {
         .get("/plop/one")
         .reply(200, { id: 1 });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(
@@ -1592,7 +1595,7 @@ describe("useGet hook", () => {
           return { id: 1 };
         });
 
-      const wrapper: React.FC = ({ children }) => (
+      const wrapper = ({ children }: WrapperProps) => (
         <RestfulProvider base="https://my-awesome-api.fake">{children}</RestfulProvider>
       );
       const { result } = renderHook(

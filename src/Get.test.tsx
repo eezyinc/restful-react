@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/extend-expect";
-import { cleanup, render, wait, waitForElement } from "@testing-library/react";
+import { act, cleanup, render, waitFor } from "@testing-library/react";
 import "isomorphic-fetch";
 import times from "lodash/times";
 import nock from "nock";
@@ -12,6 +12,13 @@ describe("Get", () => {
   afterEach(() => {
     cleanup();
     nock.cleanAll();
+
+    // debug
+    act(() => {});
+    times(2);
+    const foo = Mutate;
+
+    return foo;
   });
 
   describe("classic usage", () => {
@@ -29,7 +36,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should deal with trailing slashs", async () => {
@@ -46,7 +53,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should set loading to `true` on mount", async () => {
@@ -63,7 +70,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[0][1].loading).toEqual(true);
     });
 
@@ -81,7 +88,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
     });
 
@@ -99,12 +106,12 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual({ hello: "world" });
     });
 
     it("shouldn't resolve after component unmounts", async () => {
-      let requestResolves: () => void;
+      let requestResolves: (value: unknown) => void;
       const pendingRequestFinishes = new Promise(resolvePromise => {
         requestResolves = resolvePromise;
       });
@@ -125,10 +132,10 @@ describe("Get", () => {
           </Get>
         </RestfulProvider>,
       );
-
       unmount();
-      requestResolves!();
-      await wait(() => expect(resolve).not.toHaveBeenCalled());
+      requestResolves!(undefined);
+
+      await waitFor(() => expect(resolve).not.toHaveBeenCalled());
     });
 
     it("should call the provider onRequest", async () => {
@@ -149,7 +156,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(onRequest).toBeCalledWith(request);
     });
 
@@ -173,7 +180,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(onResponse).toBeCalled();
       expect(body).toMatchObject({ hello: "world" });
     });
@@ -183,7 +190,7 @@ describe("Get", () => {
         .get("/")
         .reply(200, { oh: "my god 😍" }, { "X-custom-header": "custom value" });
 
-      const { getByTestId } = render(
+      const { findByTestId } = render(
         <RestfulProvider base="https://my-awesome-api.fake">
           <Get path="/">
             {(_data, { loading }, _refetch, { response }) => {
@@ -200,9 +207,10 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await waitForElement(() => getByTestId("response"));
-      expect(getByTestId("response")).not.toBeEmpty();
-      expect(getByTestId("custom-header")).toHaveTextContent("custom value");
+      const response = await findByTestId("response");
+      const header = await findByTestId("custom-header");
+      expect(response).not.toBeEmptyDOMElement();
+      expect(header).toHaveTextContent("custom value");
     });
   });
 
@@ -221,7 +229,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual(null);
       expect(children.mock.calls[1][1].error).toEqual({
         data: { message: "You shall not pass!" },
@@ -244,7 +252,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual(null);
       expect(children.mock.calls[1][1].error).toMatchObject({
         message: "Failed to fetch: request to https://my-awesome-api.fake failed, reason: You shall not pass!",
@@ -267,13 +275,13 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual(null);
       expect(children.mock.calls[1][1].error).toEqual({
         data:
-          "invalid json response body at https://my-awesome-api.fake reason: Unexpected token < in JSON at position 0",
+          "Failed to fetch: invalid json response body at https://my-awesome-api.fake reason: Unexpected token < in JSON at position 0",
         message:
-          "Failed to fetch: 200 OK - invalid json response body at https://my-awesome-api.fake reason: Unexpected token < in JSON at position 0",
+          "Failed to fetch: 200 OK - Failed to fetch: invalid json response body at https://my-awesome-api.fake reason: Unexpected token < in JSON at position 0",
         status: 200,
       });
     });
@@ -294,7 +302,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(onError).toBeCalledWith(
         {
           data: { message: "You shall not pass!" },
@@ -325,7 +333,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(onError).toBeCalledWith(
         {
           data: { message: "You shall not pass!" },
@@ -335,8 +343,9 @@ describe("Get", () => {
         expect.any(Function), // retry
         expect.any(Object), // response
       );
-      onError.mock.calls[0][1]();
-      await wait(() => expect(children.mock.calls.length).toBe(4));
+      await waitFor(() => onError.mock.calls[0][1]());
+
+      await waitFor(() => expect(children.mock.calls.length).toBe(4));
       expect(children.mock.calls[3][0]).toEqual({ message: "You shall pass :)" });
     });
 
@@ -358,7 +367,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(onError.mock.calls.length).toEqual(0);
     });
   });
@@ -380,7 +389,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual({ hello: "world", foo: "bar" });
     });
 
@@ -400,7 +409,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][0]).toEqual({ hello: "world", foo: "bar" });
     });
 
@@ -420,7 +429,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].error.message).toEqual("RESOLVE_ERROR");
       expect(children.mock.calls[1][0]).toEqual(null);
     });
@@ -441,7 +450,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].error).toEqual({ message: "RESOLVE_ERROR", data: JSON.stringify("nogood") });
       expect(children.mock.calls[1][0]).toEqual(null);
     });
@@ -460,7 +469,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toBe(false);
       expect(children.mock.calls[0][0]).toBe(null);
     });
@@ -484,7 +493,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(0));
+      await waitFor(() => expect(children.mock.calls.length).toBe(0));
     });
 
     it("should render if we have data", async () => {
@@ -503,7 +512,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toBe(false);
       expect(children.mock.calls[0][0]).toEqual({ hello: "world" });
     });
@@ -523,7 +532,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toBe(false);
       expect(children.mock.calls[0][0]).toEqual({ hello: "world" });
     });
@@ -544,7 +553,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toBe(false);
       expect(children.mock.calls[0][1].error).toEqual({
         data: "Go away!",
@@ -571,7 +580,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
@@ -592,7 +601,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
@@ -615,7 +624,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
@@ -636,12 +645,15 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
     });
 
     it("should add a promised custom header with the requestOptions method", async () => {
+      jest.useFakeTimers();
+      const timerVal = 1000;
+
       nock("https://my-awesome-api.fake", { reqheaders: { foo: "bar" } })
         .get("/")
         .reply(200, { id: 1 });
@@ -653,16 +665,21 @@ describe("Get", () => {
         <RestfulProvider base="https://my-awesome-api.fake">
           <Get
             path=""
-            requestOptions={() => new Promise(res => setTimeout(() => res({ headers: { foo: "bar" } }), 1000))}
+            requestOptions={() => new Promise(res => setTimeout(() => res({ headers: { foo: "bar" } }), timerVal))}
           >
             {children}
           </Get>
         </RestfulProvider>,
       );
+      await act((): void => {
+        jest.advanceTimersByTime(timerVal);
+      });
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
     });
   });
 
@@ -682,7 +699,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       expect(children.mock.calls[1][1].loading).toEqual(false);
       expect(children.mock.calls[1][0]).toEqual({ id: 1 });
 
@@ -690,8 +707,10 @@ describe("Get", () => {
       nock("https://my-awesome-api.fake")
         .get("/")
         .reply(200, { id: 2 });
-      children.mock.calls[1][2].refetch();
-      await wait(() => expect(children.mock.calls.length).toBe(4));
+      await act((): void => {
+        children.mock.calls[1][2].refetch();
+      });
+      await waitFor(() => expect(children.mock.calls.length).toBe(4));
 
       // transition state
       expect(children.mock.calls[2][1].loading).toEqual(true);
@@ -733,7 +752,7 @@ describe("Get", () => {
         ),
       );
 
-      await wait(() => expect(apiCalls).toEqual(1));
+      await waitFor(() => expect(apiCalls).toEqual(1));
     });
 
     it("should call the API only 10 times without debounce", async () => {
@@ -765,7 +784,7 @@ describe("Get", () => {
         ),
       );
 
-      await wait(() => expect(apiCalls).toEqual(10));
+      await waitFor(() => expect(apiCalls).toEqual(10));
     });
   });
 
@@ -794,8 +813,8 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(firstAPI.isDone()).toBeTruthy());
-      await wait(() => expect(secondAPI.isDone()).toBeTruthy());
+      await waitFor(() => expect(firstAPI.isDone()).toBeTruthy());
+      await waitFor(() => expect(secondAPI.isDone()).toBeTruthy());
     });
     it("should refetch when parentPath changes", async () => {
       const firstAPI = nock("https://my-awesome-api.fake")
@@ -821,8 +840,8 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(firstAPI.isDone()).toBeTruthy());
-      await wait(() => expect(secondAPI.isDone()).toBeTruthy());
+      await waitFor(() => expect(firstAPI.isDone()).toBeTruthy());
+      await waitFor(() => expect(secondAPI.isDone()).toBeTruthy());
     });
     it("should refetch when queryParams change", async () => {
       const firstAPI = nock("https://my-awesome-api.fake")
@@ -850,8 +869,8 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(firstAPI.isDone()).toBeTruthy());
-      await wait(() => expect(secondAPI.isDone()).toBeTruthy());
+      await waitFor(() => expect(firstAPI.isDone()).toBeTruthy());
+      await waitFor(() => expect(secondAPI.isDone()).toBeTruthy());
     });
     it("should refetch when requestOptions change", async () => {
       const firstAPI = nock("https://my-awesome-api.fake")
@@ -878,8 +897,8 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(firstAPI.isDone()).toBeTruthy());
-      await wait(() => expect(secondAPI.isDone()).toBeTruthy());
+      await waitFor(() => expect(firstAPI.isDone()).toBeTruthy());
+      await waitFor(() => expect(secondAPI.isDone()).toBeTruthy());
     });
   });
 
@@ -906,7 +925,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(apiCalls).toEqual(1));
+      await waitFor(() => expect(apiCalls).toEqual(1));
     });
 
     it("should rewrite the base and handle path accordingly", async () => {
@@ -932,7 +951,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should refetch when base changes", async () => {
@@ -962,7 +981,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(apiCalls).toEqual(2));
+      await waitFor(() => expect(apiCalls).toEqual(2));
     });
 
     it("should refetch when path changes", async () => {
@@ -992,7 +1011,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(apiCalls).toEqual(2));
+      await waitFor(() => expect(apiCalls).toEqual(2));
     });
 
     it("should refetch when resolve changes", async () => {
@@ -1022,7 +1041,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(apiCalls).toEqual(2));
+      await waitFor(() => expect(apiCalls).toEqual(2));
     });
 
     it("should NOT refetch when queryParams are the same", async () => {
@@ -1052,7 +1071,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(apiCalls).toEqual(1));
+      await waitFor(() => expect(apiCalls).toEqual(1));
     });
 
     it("should refetch when queryParams changes", async () => {
@@ -1084,7 +1103,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(apiCalls).toEqual(2));
+      await waitFor(() => expect(apiCalls).toEqual(2));
     });
   });
 
@@ -1103,7 +1122,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should compose absolute urls", async () => {
@@ -1112,7 +1131,7 @@ describe("Get", () => {
         .reply(200);
       nock("https://my-awesome-api.fake")
         .get("/absolute")
-        .reply(200);
+        .reply(200, { path: "/absolute" });
 
       const children = jest.fn();
       children.mockReturnValue(<div />);
@@ -1123,7 +1142,8 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
+      expect(children.mock.calls[2][0]).toEqual({ path: "/absolute" });
     });
 
     it("should compose relative urls", async () => {
@@ -1143,7 +1163,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
       expect(children.mock.calls[2][0]).toEqual({ path: "/people/relative" });
     });
 
@@ -1164,7 +1184,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
       expect(children.mock.calls[2][0]).toEqual({ path: "/absolute" });
     });
 
@@ -1184,7 +1204,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
       expect(children.mock.calls[2][0]).toEqual({ path: "/people/relative" });
     });
 
@@ -1205,7 +1225,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
       expect(children.mock.calls[2][0]).toEqual({ path: "/people/relative" });
     });
 
@@ -1245,8 +1265,8 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(6));
-      expect(children.mock.calls[5][0]).toEqual({ path: "/absolute-2/relative-2/relative-3" });
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
+      expect(children.mock.calls[2][0]).toEqual({ path: "/absolute-2/relative-2/relative-3" });
     });
 
     it("should compose properly when one of the paths is empty string", async () => {
@@ -1285,8 +1305,8 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(6));
-      expect(children.mock.calls[5][0]).toEqual({ path: "/absolute-1/absolute-2/relative-2/relative-3" });
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
+      expect(children.mock.calls[2][0]).toEqual({ path: "/absolute-1/absolute-2/relative-2/relative-3" });
     });
 
     it("should compose properly when one of the paths is lone slash and base has trailing slash", async () => {
@@ -1325,8 +1345,8 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(6));
-      expect(children.mock.calls[5][0]).toEqual({ path: "/absolute-1/absolute-2/relative-2/relative-3" });
+      await waitFor(() => expect(children.mock.calls.length).toBe(3), { timeout: 5000 });
+      expect(children.mock.calls[2][0]).toEqual({ path: "/absolute-1/absolute-2/relative-2/relative-3" });
     });
   });
 
@@ -1350,7 +1370,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should inherit provider's queryParams if none specified", async () => {
@@ -1370,7 +1390,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should override provider's queryParams if own specified", async () => {
@@ -1392,7 +1412,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
 
     it("should merge provider's queryParams with own", async () => {
@@ -1415,7 +1435,7 @@ describe("Get", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
     });
   });
 });

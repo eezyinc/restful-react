@@ -10,6 +10,7 @@ import { processResponse } from "./util/processResponse";
 import { useDeepCompareCallback } from "./util/useDeepCompareEffect";
 import { useAbort } from "./useAbort";
 import { constructUrl } from "./util/constructUrl";
+import { parseError } from "./util/parseError";
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
@@ -219,10 +220,7 @@ export function useGet<TData = any, TError = any, TQueryParams = { [key: string]
           return;
         }
 
-        const error = {
-          message: `Failed to fetch: ${e.message}`,
-          data: e.message,
-        };
+        const error = parseError(e);
 
         setState(prev => ({
           ...prev,

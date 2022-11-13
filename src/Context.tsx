@@ -30,7 +30,7 @@ export interface RestfulReactProviderProps<TData = any> {
    * Trigger on each error.
    * For `Get` and `Mutation` calls, you can also call `retry` to retry the exact same request.
    * Please note that it's quite hard to retrieve the response data after a retry mutation in this case.
-   * Depending of your case, it can be easier to add a `localErrorOnly` on your `Mutate` component
+   * Depending on your case, it can be easier to add a `localErrorOnly` on your `Mutate` component
    * to deal with your retry locally instead of in the provider scope.
    */
   onError?: (
@@ -59,6 +59,8 @@ export interface RestfulReactProviderProps<TData = any> {
    * Query parameter stringify options applied for each request.
    */
   queryParamStringifyOptions?: IStringifyOptions;
+
+  children?: React.ReactNode | React.ReactNode[];
 }
 
 export const Context = React.createContext<Required<RestfulReactProviderProps>>({
@@ -71,6 +73,7 @@ export const Context = React.createContext<Required<RestfulReactProviderProps>>(
   onResponse: noop,
   queryParams: {},
   queryParamStringifyOptions: {},
+  children: null,
 });
 
 export interface InjectedProps {
@@ -95,6 +98,7 @@ export default class RestfulReactProvider<T> extends React.Component<RestfulReac
           parentPath: "",
           queryParams: {},
           queryParamStringifyOptions: {},
+          children: null,
           ...value,
         }}
       >

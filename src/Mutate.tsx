@@ -5,6 +5,7 @@ import { composePath, composeUrl } from "./util/composeUrl";
 import { processResponse } from "./util/processResponse";
 import { constructUrl } from "./util/constructUrl";
 import { IStringifyOptions } from "qs";
+import { parseError } from "./util/parseError";
 
 /**
  * An enumeration of states that a fetchable
@@ -218,11 +219,7 @@ class ContextlessMutate<TData, TError, TQueryParams, TRequestBody, TPathParams> 
       response = await fetch(request, { signal: this.signal });
       if (onResponse) onResponse(response.clone());
     } catch (e) {
-      const error = {
-        message: `Failed to fetch: ${e.message}`,
-        data: "",
-      };
-
+      const error = parseError(e);
       this.setState({
         error,
         loading: false,
@@ -244,13 +241,9 @@ class ContextlessMutate<TData, TError, TQueryParams, TRequestBody, TPathParams> 
       if (this.signal.aborted) {
         return;
       }
-      const error = {
-        data: e.message,
-        message: `Failed to resolve: ${e.message}`,
-      };
 
       this.setState({
-        error,
+        error: parseError(e),
         loading: false,
       });
       throw e;

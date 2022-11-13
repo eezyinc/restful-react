@@ -7,6 +7,7 @@ import { constructUrl } from "./util/constructUrl";
 import { processResponse } from "./util/processResponse";
 import { useAbort } from "./useAbort";
 import { useDeepCompareCallback, useDeepCompareEffect } from "./util/useDeepCompareEffect";
+import { parseError } from "./util/parseError";
 
 export interface UseMutateProps<TData, TError, TQueryParams, TRequestBody, TPathParams>
   extends Omit<UseGetProps<TData, TError, TQueryParams, TPathParams>, "lazy" | "debounce" | "mock"> {
@@ -184,11 +185,7 @@ export function useMutate<
         response = await fetch(request);
         if (context.onResponse) context.onResponse(response.clone());
       } catch (e) {
-        const error = {
-          message: `Failed to fetch: ${e.message}`,
-          data: "",
-        };
-
+        let error = parseError(e);
         setState({
           error,
           loading: false,
@@ -213,10 +210,7 @@ export function useMutate<
           return;
         }
 
-        const error = {
-          data: e.message,
-          message: `Failed to resolve: ${e.message}`,
-        };
+        const error = parseError(e);
 
         setState(prevState => ({
           ...prevState,

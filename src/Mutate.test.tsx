@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/extend-expect";
-import { cleanup, render, wait } from "@testing-library/react";
+import { cleanup, render, waitFor } from "@testing-library/react";
 import "isomorphic-fetch";
 import nock from "nock";
 import React from "react";
@@ -30,13 +30,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // delete action
       children.mock.calls[0][0]("plop");
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -62,13 +62,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // delete action
       children.mock.calls[0][0]("plop");
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -94,13 +94,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // delete action
       children.mock.calls[0][0]("plop");
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -126,13 +126,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // delete action
       children.mock.calls[0][0]({ foo: "bar" });
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -158,13 +158,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // delete action
       children.mock.calls[0][0]({});
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -190,13 +190,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // delete action
       children.mock.calls[0][0](); // no id specified here
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -225,13 +225,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // delete action
       children.mock.calls[0][0]("plop");
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -258,13 +258,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -290,13 +290,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]({ foo: "bar" });
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -322,7 +322,7 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
@@ -347,7 +347,7 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
@@ -516,7 +516,7 @@ describe("Mutate", () => {
       );
 
       // call mutate
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       await children.mock.calls[0][0]();
 
       expect(onMutate).toHaveBeenCalled();
@@ -541,7 +541,7 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
@@ -550,7 +550,7 @@ describe("Mutate", () => {
         [0]()
         .then((data: any) => expect(data).toBe(undefined))
         .catch(() => expect("should not").toBe("called"));
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -580,13 +580,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -616,13 +616,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -652,13 +652,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -692,7 +692,7 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(2));
+      await waitFor(() => expect(children.mock.calls.length).toBe(2));
       const response = await children.mock.calls[0][0]();
       expect(children.mock.calls.length).toBe(4);
       expect(response).toEqual({ id: 1 });
@@ -718,13 +718,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -766,13 +766,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -814,13 +814,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -849,13 +849,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -883,13 +883,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -917,13 +917,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -952,13 +952,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -990,13 +990,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
@@ -1030,13 +1030,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await wait(() => expect(children.mock.calls.length).toBe(1));
+      await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
       children.mock.calls[0][0]();
-      await wait(() => expect(children.mock.calls.length).toBe(3));
+      await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
       expect(children.mock.calls[1][1].loading).toEqual(true);
