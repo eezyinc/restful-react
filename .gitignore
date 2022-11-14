@@ -105,3 +105,4 @@ examples/*.tsx
 
 # Repros
 repros/*
+.idea/*
