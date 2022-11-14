@@ -1,5 +1,6 @@
 mock-backend
-dist
+# package dist in GH
+#dist
 .rpt2_cache
 
 ### macOS ###
