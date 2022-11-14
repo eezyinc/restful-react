@@ -667,7 +667,7 @@ describe("useMutate", () => {
         expect(result.current).toMatchObject({
           error: {
             data:
-              "invalid json response body at https://my-awesome-api.fake/ reason: Unexpected token < in JSON at position 0",
+              "Failed to fetch: invalid json response body at https://my-awesome-api.fake/ reason: Unexpected token < in JSON at position 0",
             message: "Failed to fetch: 200 OK",
             status: 200,
           },
@@ -675,7 +675,7 @@ describe("useMutate", () => {
         });
         expect(e).toEqual({
           data:
-            "invalid json response body at https://my-awesome-api.fake/ reason: Unexpected token < in JSON at position 0",
+            "Failed to fetch: invalid json response body at https://my-awesome-api.fake/ reason: Unexpected token < in JSON at position 0",
           message: "Failed to fetch: 200 OK",
           status: 200,
         });

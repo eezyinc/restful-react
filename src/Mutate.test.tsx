@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/extend-expect";
-import { cleanup, render, waitFor } from "@testing-library/react";
+import { act, cleanup, render, waitFor } from '@testing-library/react';
 import "isomorphic-fetch";
 import nock from "nock";
 import React from "react";
@@ -33,9 +33,11 @@ describe("Mutate", () => {
       await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
+      await act(async () => {
+        // delete action
+        children.mock.calls[0][0]("plop");
+      });
 
-      // delete action
-      children.mock.calls[0][0]("plop");
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -66,8 +68,11 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // delete action
-      children.mock.calls[0][0]("plop");
+      await act(async () => {
+        // delete action
+        children.mock.calls[0][0]("plop");
+      });
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -98,8 +103,11 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // delete action
-      children.mock.calls[0][0]("plop");
+      await act(async () => {
+        // delete action
+        children.mock.calls[0][0]("plop");
+      });
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -129,9 +137,11 @@ describe("Mutate", () => {
       await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
+      await act(async () => {
+        // delete action
+        children.mock.calls[0][0]({ foo: "bar" });
+      });
 
-      // delete action
-      children.mock.calls[0][0]({ foo: "bar" });
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -161,9 +171,11 @@ describe("Mutate", () => {
       await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
+      await act(async () => {
+        // delete action
+        children.mock.calls[0][0]({});
+      });
 
-      // delete action
-      children.mock.calls[0][0]({});
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -194,8 +206,11 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // delete action
-      children.mock.calls[0][0](); // no id specified here
+      await act(async () => {
+        // delete action
+        children.mock.calls[0][0](); // no id specified here
+      });
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -229,8 +244,10 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // delete action
-      children.mock.calls[0][0]("plop");
+      await act(async () => {
+        // delete action
+        children.mock.calls[0][0]("plop");
+      });
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -261,9 +278,11 @@ describe("Mutate", () => {
       await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
 
-      // post action
-      children.mock.calls[0][0]();
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -293,9 +312,11 @@ describe("Mutate", () => {
       await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]({ foo: "bar" });
+      });
 
-      // post action
-      children.mock.calls[0][0]({ foo: "bar" });
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -327,7 +348,10 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
-      expect(await children.mock.calls[0][0]()).toEqual({ id: 1 });
+      await act(async () => {
+        expect(await children.mock.calls[0][0]()).toEqual({ id: 1 });
+      });
+
     });
 
     it("should return the data and the message on error", async () => {
@@ -352,16 +376,18 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][0]).toBeDefined();
 
       // post action
-      return children.mock.calls[0][0]().catch((error: any) => {
-        expect(error).toEqual({
-          data: { error: "oh no… not again…" },
-          message: "Failed to fetch: 500 Internal Server Error",
-          status: 500,
-        });
-        expect(children.mock.calls[2][1].error).toEqual({
-          data: { error: "oh no… not again…" },
-          message: "Failed to fetch: 500 Internal Server Error",
-          status: 500,
+      await act(async () => {
+        children.mock.calls[0][0]().catch((error: any) => {
+          expect(error).toEqual({
+            data: { error: "oh no… not again…" },
+            message: "Failed to fetch: 500 Internal Server Error",
+            status: 500,
+          });
+          expect(children.mock.calls[2][1].error).toEqual({
+            data: { error: "oh no… not again…" },
+            message: "Failed to fetch: 500 Internal Server Error",
+            status: 500,
+          });
         });
       });
     });
@@ -384,9 +410,11 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      // post action
-      await children.mock.calls[0][0]().catch(() => {
-        /* noop */
+      await act(async () => {
+        // post action
+        await children.mock.calls[0][0]().catch(() => {
+          /* noop */
+        });
       });
 
       expect(onError).toBeCalledWith(
@@ -421,9 +449,11 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      // post action
-      await children.mock.calls[0][0]().catch(() => {
-        /* noop */
+      await act(async () => {
+        // post action
+        await children.mock.calls[0][0]().catch(() => {
+          /* noop */
+        });
       });
 
       expect(onError).toBeCalledWith(
@@ -435,7 +465,12 @@ describe("Mutate", () => {
         expect.any(Function), // retry
         expect.any(Object), // response
       );
-      const data = await onError.mock.calls[0][1]();
+      let data = undefined;
+
+      await act(async () => {
+        data = await onError.mock.calls[0][1]();
+      });
+
       expect(data).toEqual({ message: "You shall pass :)" });
     });
 
@@ -457,9 +492,11 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      // post action
-      await children.mock.calls[0][0]().catch(() => {
-        /* noop */
+      await act(async () => {
+        // post action
+        await children.mock.calls[0][0]().catch(() => {
+          /* noop */
+        });
       });
 
       expect(onError.mock.calls.length).toEqual(0);
@@ -515,9 +552,12 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      // call mutate
+
       await waitFor(() => expect(children.mock.calls.length).toBe(1));
-      await children.mock.calls[0][0]();
+      await act(async () => {
+        // call mutate
+        await children.mock.calls[0][0]();
+      });
 
       expect(onMutate).toHaveBeenCalled();
     });
@@ -544,12 +584,14 @@ describe("Mutate", () => {
       await waitFor(() => expect(children.mock.calls.length).toBe(1));
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
-
+      await act(async () => {
+        children.mock.calls[0]
+          [0]()
+          .then((data: any) => expect(data).toBe(undefined))
+          .catch(() => expect("should not").toBe("called"));
+      });
       // put action
-      children.mock.calls[0]
-        [0]()
-        .then((data: any) => expect(data).toBe(undefined))
-        .catch(() => expect("should not").toBe("called"));
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -584,8 +626,11 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -620,8 +665,11 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -656,8 +704,11 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -692,9 +743,13 @@ describe("Mutate", () => {
         </RestfulProvider>,
       );
 
-      await waitFor(() => expect(children.mock.calls.length).toBe(2));
-      const response = await children.mock.calls[0][0]();
-      expect(children.mock.calls.length).toBe(4);
+      await waitFor(() => expect(children.mock.calls.length).toBe(2), { timeout: 2000 });
+      let response = undefined;
+      await act(async () => {
+        response = await children.mock.calls[0][0]();
+      });
+      await waitFor(() => expect(children.mock.calls.length).toBe(3), { timeout: 2000 });
+
       expect(response).toEqual({ id: 1 });
     });
 
@@ -722,8 +777,11 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -770,8 +828,11 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -818,8 +879,11 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
+
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -853,8 +917,10 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -887,8 +953,10 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -921,8 +989,10 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -956,8 +1026,10 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -994,8 +1066,10 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
@@ -1034,8 +1108,10 @@ describe("Mutate", () => {
       expect(children.mock.calls[0][1].loading).toEqual(false);
       expect(children.mock.calls[0][0]).toBeDefined();
 
-      // post action
-      children.mock.calls[0][0]();
+      await act(async () => {
+        // post action
+        children.mock.calls[0][0]();
+      });
       await waitFor(() => expect(children.mock.calls.length).toBe(3));
 
       // transition state
