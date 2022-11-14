@@ -1,6 +1,6 @@
 {
   "name": "restful-react",
-  "version": "15.9.4",
+  "version": "15.10.0",
   "description": "A consistent, declarative way of interacting with RESTful backends, featuring code-generation from Swagger and OpenAPI specs",
   "keywords": [
     "rest",
@@ -23,6 +23,12 @@
       "name": "Fabien Bernard",
       "email": "fabien@contiamo.com",
       "url": "https://fabien0102.com/en"
+    }
+  ,
+    {
+      "name": "Aleks Clark",
+      "email": "aleks.clark@gmail.com",
+      "url": "https://aleksclark.com"
     }
   ],
   "files": [
